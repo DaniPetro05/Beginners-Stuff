@@ -17,7 +17,7 @@ struct Games {
 };
 
 
-int input_handling_c(int *index, struct Player players[5], struct Games *games) { //Function handling inputs.
+int input_handling_n(int *index, struct Player players[5], struct Games *games) { //Function handling inputs.
     int bool = 0; //True/False value (0 = false, 1 = true)
     int win_input;
     int lose_input;
@@ -73,10 +73,10 @@ int game_mode (int *index, struct Player players[5], struct Games *games) { //Ch
     scanf(" %c", &rank_or_casual);
     switch(rank_or_casual) {
         case 'c':
-            input_handling_c(index, players, games); //Prior function declared for case c.
+            input_handling_n(index, players, games); //Prior function declared for case c.
             break;
         case 'r':
-            input_handling_c(index, players, games); //Prior function declared for case r.
+            input_handling_n(index, players, games); //Prior function declared for case r.
             ranked_score(index, players, games);
             break;
     }
@@ -136,7 +136,7 @@ int main() {
                     case 'c':
                         break;
                 }
-            case 'x': //Prints out all values of prior inputs as arrays. 
+            case 'x': 
                 exit(EXIT_SUCCESS);
                 // printf("No games available.\n");
                 }
