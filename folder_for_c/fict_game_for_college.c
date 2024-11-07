@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//Project 100% finished!
+//Project 100% finished!!!
 
 struct Player { //Struct for commencing player manipulation of statistics.
     int win;
@@ -19,35 +19,36 @@ struct Games { //Saved games stored in respective arrays.
 
 int input_handling_n(int *index1, int *index2, struct Player players[5], struct Games *games, int *win_input, int *lose_input, char *rank_or_casual) { //Function handling inputs.
     int is_successful = 0; //True/False value (0 = false, 1 = true)
+    char identical[30] = "Winner and loser identical!"; //Explicitly declared due to CodeRunner issues.
     printf("\nEnter winner ID (1-5): ");
     scanf("%d", win_input);
     getchar();
-    printf("\nEnter loser ID (1-5): \n");
+    printf("\nEnter loser ID (1-5): ");
     scanf("%d", lose_input);
     getchar();
     if (*win_input == *lose_input) { //Immediately return false for same both inputs.
-        fprintf(stderr, "Winner and loser identical!");
-        return 1; 
+        printf("\n%s", identical);
+        return 1;
     }
     if ((*win_input > 5 || *win_input < 0) ^ (*lose_input > 5 || *lose_input < 0)) { //One of these conditions must be wrong (XOR).
-        return 1;
+        return 1; //Abruptly ends the program if only one of any input exceeds 5 or descends 0.
     } else {
         switch(*rank_or_casual) {
             case 'c':
-            if (*index1 < 5) {
-                games->game_casual_winner[*index1] = *win_input;
-                games->game_casual_loser[*index1] = *lose_input;
-                players[*win_input - 1].win += 1;
-                players[*lose_input - 1].lose += 1;
+            if (*index1 < 5) { //5 entries max.
+                games->game_casual_winner[*index1] = *win_input; //Sorts all win inputs into winner elements.
+                games->game_casual_loser[*index1] = *lose_input; //Sorts all loss inputs into loser elements.
+                players[*win_input - 1].win += 1; //Increment 1 win each time a player number is typed in from win_input.
+                players[*lose_input - 1].lose += 1; //Increment 1 loss each time a player number is typed in from lose_input.
                 (*index1)++; //Increment index1 for next casual inputs. Pointer, since index changes after each successful input!
             }  
             break;
             case 'r':
-            if (*index2 < 5) {
-                games->game_ranked_winner[*index2] = *win_input;
-                games->game_ranked_loser[*index2] = *lose_input;
-                players[*win_input - 1].win += 1;
-                players[*lose_input - 1].lose += 1;
+            if (*index2 < 5) { //5 entries max.
+                games->game_ranked_winner[*index2] = *win_input; // Same as above, though only applicable to ranked.
+                games->game_ranked_loser[*index2] = *lose_input; // ...
+                players[*win_input - 1].win += 1; //...
+                players[*lose_input - 1].lose += 1; //...
                 (*index2)++; //Increment index2 for next ranked inputs. 
             }  
             break;
@@ -55,7 +56,7 @@ int input_handling_n(int *index1, int *index2, struct Player players[5], struct 
     } 
         is_successful = 1; //Make value true 
         if (is_successful) { //If true, then declare this block.
-            printf("New game added"); //Print for every successful game added.
+            printf("\nNew game added"); //Print for every successful game added.
         } else { //Else false, return 1.
             return 1;
     }
@@ -114,14 +115,14 @@ int main() {
                 continue;
             case 'r': //r lists all players with respective ranks (highest points = TOP)
                 printf("\nPlayer ranks");
-                int top_rank = players[0].rang;
+                int top_rang = players[0].rang; //Serves as a placeholder.
                 for (int i = 1; i < 5; i++) {
-                    if (players[i].rang > top_rank) { 
-                        top_rank = players[i].rang; //Make top_rank players[i].rang based on amount of points.
+                    if (players[i].rang > top_rang) { 
+                        top_rang = players[i].rang; // As soon as any other rang greater than 100, make that one top rank.
                     }
                 }
                 for (int i = 0; i < 5; i++) {
-                    if (players[i].rang == top_rank) { //If more than one the same rang size, add TOP afterwards.
+                    if (players[i].rang == top_rang) { //If more than one the same rang size, add TOP afterwards.
                         printf("\nPlayer %d - Rank %d - TOP", players[i].ID, players[i].rang);
                     } else { //Otherwise, list just IDs and rangs.
                         printf("\nPlayer %d - Rank %d", players[i].ID, players[i].rang);
@@ -158,7 +159,7 @@ int main() {
                         printf("\nThere are no games yet.");
                     }
                     continue;
-                    case 'c': //Same, what r does, but for casual games.
+                    case 'c': //Same what r does, but for casual games.
                     if ((games.game_casual_winner[0] != 0) || (games.game_casual_loser[0] != 0)) { //Same as predecessor.
                         for (int i = 0; i < index1; i++) {
                             printf("\nWinner: %d - Loser: %d", games.game_casual_winner[i], games.game_casual_loser[i]); //Same as predecessor.
