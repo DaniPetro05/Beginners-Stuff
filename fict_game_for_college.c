@@ -1,83 +1,90 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*More comments awaiting currently. 
-Project not done yet! */
+//Project 100% finished!
 
-struct Player {
+struct Player { //Struct for commencing player manipulation of statistics.
     int win;
     int lose;
     int rang;
     int ID;
 };
 
-struct Games {
+struct Games { //Saved games stored in respective arrays.
     int game_casual_winner[5];
     int game_casual_loser[5];
+    int game_ranked_winner[5];
+    int game_ranked_loser[5];
 };
 
-
-int input_handling_n(int *index, struct Player players[5], struct Games *games) { //Function handling inputs.
-    int bool = 0; //True/False value (0 = false, 1 = true)
-    int win_input;
-    int lose_input;
+int input_handling_n(int *index1, int *index2, struct Player players[5], struct Games *games, int *win_input, int *lose_input, char *rank_or_casual) { //Function handling inputs.
+    int is_successful = 0; //True/False value (0 = false, 1 = true)
     printf("\nEnter winner ID (1-5): ");
-    scanf("%d", &win_input);
+    scanf("%d", win_input);
+    getchar();
     printf("\nEnter loser ID (1-5): \n");
-    scanf("%d", &lose_input);
-    if (win_input == lose_input) { //Check for identical inputs.
+    scanf("%d", lose_input);
+    getchar();
+    if (*win_input == *lose_input) { //Immediately return false for same both inputs.
         fprintf(stderr, "Winner and loser identical!");
-        return 1;
-    } else if ((win_input > 5 || win_input < 0) ^ (lose_input > 5 || lose_input < 0)) { //One of them must be wrong (XOR)!
+        return 1; 
+    }
+    if ((*win_input > 5 || *win_input < 0) ^ (*lose_input > 5 || *lose_input < 0)) { //One of these conditions must be wrong (XOR).
         return 1;
     } else {
-        if (*index < 5) {
-            games->game_casual_winner[*index] = win_input;
-            games->game_casual_loser[*index] = lose_input;
-            players[win_input - 1].win += 1;
-            players[lose_input - 1].lose += 1;
-        }  
-        }
-        (*index)++; //Increment index for next inputs. Pointer, since index must be globally changed!
-        bool = 1; //Make value true 
-        if (bool) { //If true, then declare this block.
-            printf("New game added");
+        switch(*rank_or_casual) {
+            case 'c':
+            if (*index1 < 5) {
+                games->game_casual_winner[*index1] = *win_input;
+                games->game_casual_loser[*index1] = *lose_input;
+                players[*win_input - 1].win += 1;
+                players[*lose_input - 1].lose += 1;
+                (*index1)++; //Increment index1 for next casual inputs. Pointer, since index changes after each successful input!
+            }  
+            break;
+            case 'r':
+            if (*index2 < 5) {
+                games->game_ranked_winner[*index2] = *win_input;
+                games->game_ranked_loser[*index2] = *lose_input;
+                players[*win_input - 1].win += 1;
+                players[*lose_input - 1].lose += 1;
+                (*index2)++; //Increment index2 for next ranked inputs. 
+            }  
+            break;
+        } 
+    } 
+        is_successful = 1; //Make value true 
+        if (is_successful) { //If true, then declare this block.
+            printf("New game added"); //Print for every successful game added.
         } else { //Else false, return 1.
             return 1;
     }
     return 0;
 }
-
-int ranked_score(int *index, struct Player players[5], struct Games *games) { //For ranked type
-    for (int j = 0; j < *index; j++) {
-        if (players[j].win) {
-            players[j].rang += 50;
-        } 
-        if (players[j].lose) {
-            for (int i = 0; i < *index; i++) {
-                if (players[i].rang <= 0) { //Checks if there is still 0 points.
-                    break; //If so, stay still.
-                } else if (players[i].rang >= 50) { //If bigger than 50, subtract.
-                    players[i].rang -= 50;
-                    break;
-                }
-            }
-        }
+int ranked_score(int *index1, int *index2, struct Player players[5], struct Games *games, int *win_input, int *lose_input) { //Evaluates ranks based on wins or losses (ranked mode)
+    if (players[*win_input - 1].win) {
+        players[*win_input - 1].rang += 50; //Add 50 points for win.
     }
+    if (players[*lose_input - 1].lose) {
+        if (players[*lose_input - 1].rang == 0) { 
+            return 1; //If points reach 0, do nothing.
+        } else if (players[*lose_input - 1].rang >= 50) { 
+            players[*lose_input - 1].rang -= 50; //Else, subtract 50.
+        }
+    } 
     return 0;
 }
-
-int game_mode (int *index, struct Player players[5], struct Games *games) { //Checks for casual or ranked mode.
-    char rank_or_casual;
+int game_mode (int *index1, int *index2, struct Player players[5], struct Games *games, int *win_input, int *lose_input, char *rank_or_casual) { //Checks for casual or ranked mode.
     printf("\nEnter game type (c,r): ");
-    scanf(" %c", &rank_or_casual);
-    switch(rank_or_casual) {
+    scanf("%c", rank_or_casual); //Evaluate c or r.
+    getchar(); //Remove any trailing characters.
+    switch(*rank_or_casual) {
         case 'c':
-            input_handling_n(index, players, games); //Prior function declared for case c.
+            input_handling_n(index1, index2, players, games, win_input, lose_input, rank_or_casual); //Prior function declared for case c.
             break;
         case 'r':
-            input_handling_n(index, players, games); //Prior function declared for case r.
-            ranked_score(index, players, games);
+            input_handling_n(index1, index2, players, games, win_input, lose_input, rank_or_casual); //Prior function declared for case r.
+            ranked_score(index1, index2, players, games, win_input, lose_input); //Since ranked, ranked_score function is declared.
             break;
     }
     return 0;
@@ -90,56 +97,80 @@ int main() {
     {0, 0, 100, 3},
     {0, 0, 100, 4},
     {0, 0, 100, 5}
-    };
-    struct Games games = {0};
-    int index = 0; //Index starting with 0 (commonplace).
+    }; //Every player with same stats, but different IDs.
+    struct Games games = {0}; //Game stats are all at 0.
+    int index1 = 0, index2 = 0; //Index starting with 0 (commonplace).
     int selectPlayer;
     char input_g;
+    char rank_or_casual;
+    int winner_input, loser_input;
     while(1) {
         printf("\nEnter n, r, p, g or x: ");
-        scanf(" %c", &input);
-        getchar(); //Optional: Clears out newline buffers.
+        scanf("%c", &input);
+        getchar(); //Optional: Remove any leftover newlines/characters.
         switch(input) {
-            case 'n':
-                game_mode(&index, players, &games); //Key 'n' initiates input_handling inside game_mode function.
+            case 'n': //n nitiates the input process.
+                game_mode(&index1, &index2, players, &games, &winner_input, &loser_input, &rank_or_casual); //Key 'n' initiates input_handling inside game_mode function.
                 continue;
-            case 'r':
+            case 'r': //r lists all players with respective ranks (highest points = TOP)
                 printf("\nPlayer ranks");
-                for (int i = 0; i < 5; i++) {
-                    printf("\nPlayer %d - Rank %d - TOP", players[i].ID, players[i].rang);
+                int top_rank = players[0].rang;
+                for (int i = 1; i < 5; i++) {
+                    if (players[i].rang > top_rank) { 
+                        top_rank = players[i].rang; //Make top_rank players[i].rang based on amount of points.
+                    }
                 }
-                continue;
-            case 'p':
+                for (int i = 0; i < 5; i++) {
+                    if (players[i].rang == top_rank) { //If more than one the same rang size, add TOP afterwards.
+                        printf("\nPlayer %d - Rank %d - TOP", players[i].ID, players[i].rang);
+                    } else { //Otherwise, list just IDs and rangs.
+                        printf("\nPlayer %d - Rank %d", players[i].ID, players[i].rang);
+                    }
+                }
+                continue;  
+            case 'p': //p evaluates selected player and their wins/losses/winrate.
                 printf("\nSelect player (1-5): ");
                 scanf("%d", &selectPlayer);
-                if ((players[selectPlayer - 1].win == 0) && (players[selectPlayer - 1].lose) == 0) {
+                getchar();
+                if ((players[selectPlayer - 1].win == 0) && (players[selectPlayer - 1].lose) == 0) { //Makes sure that division by 0 is avoided, and no winrate displayed.
                     printf("\nPlayer %d - Rank %d", players[selectPlayer - 1].ID, players[selectPlayer - 1].rang);
                     printf("\nWins/Losses/Winrate: %.0lf/%.0lf/%.2lf %%", (double)(players[selectPlayer - 1].win), (double)(players[selectPlayer - 1].lose), 0.00);
                 }
-                else if ((players[selectPlayer - 1].lose) == 0) {
+                else if ((players[selectPlayer - 1].lose) == 0) { //No losses entail 100% winrate.
                     printf("\nPlayer %d - Rank %d", players[selectPlayer - 1].ID, players[selectPlayer - 1].rang);
                     printf("\nWins/Losses/Winrate: %.0lf/%.0lf/%.2lf %%", (double)(players[selectPlayer - 1].win), (double)(players[selectPlayer - 1].lose), 100.00);
-                } else {
+                } else { //Otherwise, adjust winrate based on the formula win/(win+loss)*100.
                     printf("\nPlayer %d - Rank %d", players[selectPlayer - 1].ID, players[selectPlayer - 1].rang);
                     printf("\nWins/Losses/Winrate: %.0lf/%.0lf/%.2lf %%", (double)(players[selectPlayer - 1].win), (double)(players[selectPlayer - 1].lose), (double)(players[selectPlayer - 1].win) / (double)((players[selectPlayer - 1].win) + (double)(players[selectPlayer - 1].lose)) * 100);
                 }
                 break;
-            case 'g':
+            case 'g': //g opens up ranked or casual winners and losers respectively.
                 printf("\nRanked or casual? (r,c):");
-                scanf(" %c", &input_g);
-                switch(input_g) {
-                    case 'r':
-                        for (int i = 0; i < index; i++) {
-                            printf("\nWinner: %d - Loser: %d", games.game_casual_winner[i], games.game_casual_loser[i]);
+                scanf("%c", &input_g);
+                getchar();
+                switch(input_g) { //Case r checks all ranked games, c casual games.
+                    case 'r': //r checks all ranked winners and losers
+                    if ((games.game_ranked_winner[0] != 0) || (games.game_ranked_loser[0] != 0)) { //If first player's values other than 0, display all winners and losers inputted.
+                        for (int i = 0; i < index2; i++) {
+                            printf("\nWinner: %d - Loser: %d", games.game_ranked_winner[i], games.game_ranked_loser[i]);
                         }
-                        continue;
-                    case 'c':
-                        break;
-                }
-            case 'x': 
+                    } else { //Otherwise, no games started, hence commence print statement.
+                        printf("\nThere are no games yet.");
+                    }
+                    continue;
+                    case 'c': //Same, what r does, but for casual games.
+                    if ((games.game_casual_winner[0] != 0) || (games.game_casual_loser[0] != 0)) { //Same as predecessor.
+                        for (int i = 0; i < index1; i++) {
+                            printf("\nWinner: %d - Loser: %d", games.game_casual_winner[i], games.game_casual_loser[i]); //Same as predecessor.
+                        } 
+                    } else {
+                        printf("\nThere are no games yet.");
+                    }   
+                    continue;
+            }
+            case 'x': //Quits the programm
                 exit(EXIT_SUCCESS);
-                // printf("No games available.\n");
-                }
         }
-        return 0;
     }
+    return 0;
+}
