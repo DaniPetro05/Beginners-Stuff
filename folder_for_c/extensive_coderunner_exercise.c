@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//Project still in development!
+
 int error_stat(double *p) { //Checks if input is lower or equal to 0. If so, function quits.
     if (*p <= 0) {
         return 1;
