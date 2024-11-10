@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Still up for refinement and edge casing!
 #define MAX_LENGTH_CHAR 100
 
 int food() {
